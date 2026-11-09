@@ -295,7 +295,7 @@ struct KlotskiBoard {
         return result;
     }
 
-    /*
+    //*
     bool operator==(const KlotskiBoard& other) const {
         if (width != other.width || height != other.height) return false;    
         if (blocks.size() != other.blocks.size()) return false;
@@ -307,7 +307,7 @@ struct KlotskiBoard {
     }
     //*/
     
-    //*
+    /*
     //An equality operator between two std::vector<KlotskiRect>
     //If every rect in A can be mapped to exactly one equivilent rect in B and vice versa, both boards are equivilent.
     bool operator==(const KlotskiBoard& other) const {
