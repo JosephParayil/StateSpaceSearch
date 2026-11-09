@@ -1,0 +1,77 @@
+							0
+			1								2
+	3				4				5				6
+7		8		9		10		11		12		13		14
+
+
+
+
+Finding parent index given child i: floor((i-1)/2)
+
+i = i-1 if even
+
+1+i-(2^x) = index local to level given index i and level x
+
+
+(1+i-(2^x) / 2) + (2^(x-1))-1
+
+
+(1+i-(2^a) / 2) + (2^(a-1))-1
+	
+reduces to : floor((i-1)/2)
+
+
+
+
+
+
+
+(2^x)-1 = first index at depth x
+
+
+x	(2^x)-1
+0	0
+1	1
+2	3	
+3	7
+4	15
+5	31
+
+
+
+convert index -> depth level
+
+x = floor(log(i+1)/log(2))
+
+
+i	floor(log(i+1)/log(2))
+0	0
+1	1
+2	1
+3	2
+4	2
+5	2
+6	2
+7	3
+8	3
+13	3
+15	4
+16	4
+23	4
+31	5
+32	5
+40	5
+
+
+
+
+
+
+
+
+
+
+
+
+
+

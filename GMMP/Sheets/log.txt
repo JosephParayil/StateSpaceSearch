@@ -1,0 +1,440 @@
+Todo/Bugs:
+- Make cmd command for just encryption decryption
+- Allow for fast notepad lookup
+- Add messages for encode decode
+- Allow for compatibility with txt documents
+- Add messages/indication for pause/unpause
+- Reorganize GMMP away from everything else (file structure)
+- Allow for tab character typing
+- Resize nodes based on connectivity
+- Categories? (Extra force that attracts nodes without drawing a connection)
+- Somehow fix lagginess brought about from label3d rendering
+- Show controls/tutorial in menu
+- Be able to adjust physical constants in menu
+    - Will need to be able to save these then
+- Scrolling over body box without selecting it still scrolls it but also changes camera
+- Make cross-compatible with linux + windows
+- Centralize GMMP-MM_SS common functionality
+- Split into sub files
+- Adding sound effects
+- Radar view
+- Make node editor larger
+
+---------------------------------------------------------------------
+3/16/2026
+Implemented encryption/decryption plus minor bug fixes
+
+
+---------------------------------------------------------------------
+3/15/2026
+
+Yo I'm lowk done. I can genuinely begin mental modeling
+
+
+---------------------------------------------------------------------
+3/11/2026
+
+
+Next Steps:
+1. Comment out the GUI stuff and test Resolve connections logic
+2. Finish chaining GUI to node and connection logic
+3. Write render and handle event methodology
+
+
+List of all Actions:
+
+[Camera]:
+WASDEQ:         Move camera
+Scroll, R:      FOV
+H:              toggle crosshair
+RM click:       Rotate camera
+
+[GMMP]:
+F:                          add node
+LM down [on empty space]    Begin rect selection
+LM up [during selection]    End rect selection
+LM down [on node]           Open Node GUI
+Escape                      Close current window
+
+[UI-Based]:
+When in ui                  Prevent camera mouse locking
+When in text selection      Prevent all other actions
+NODE GUI on title box exit  Attempt to update Title; raise error message if fail
+Node GUI update             Resolves connections
+Node GUI delete             Open Node Deletion window
+Node Deletion cancel        Close window
+Node Deleteion delete       Delete node; exit this window and Node window
+Node Deletion close         Open Node window
+[TODO: file saving UI protocols]
+
+
+------------------
+Mode variables:
+
+Selected Node (ptr)
+Mouse pos cache (vec2f)
+current ui (ptr to childwindow)
+
+
+
+
+---------------------------------------------------------------------
+3/4/2026
+
+Plan to be done during hackathon
+
+
+I am renaming OpenMM to MM_Sandbox
+
+I am renaming MM_Sandbox to 3D Graph Editor
+
+So the idea is to be able to freely edit and manipulate a graph in 3D
+
+Action                  Keybind
+    - Delete            Backspace key
+    - Rename            Double Click
+    - Copy              Ctrl+C
+    - Paste             Ctrl+V
+    - Duplicate         Ctrl+D
+    - Move              Mouse dragging X Y Z axi
+    - Add connection    F
+    - Add node          U
+    - Undo              Ctrl+Z
+    - Pause             Space
+    - Save/load         Ctrl+S
+    - Escape window     Esc
+
+
+GUI items:
+    - Renaming window
+    - Paused indicator
+    - Save/Load file dialogue
+
+Actions you can do based on selection:
+
+Selecting a singular node:
+    - Everything from selecting a group
+    - Rename
+
+Selecting connections (singular or group):
+    - Delete
+
+Selecting a group of nodes (and connections):
+    - Delete
+    - Move (only when paused)
+    - Add connection(s)
+    - Copy/duplicate
+
+Not selecting anything:
+    - Add node
+    - Undo
+    - Paste [although you can do when even while selecting something, causes an unselect]
+    - Pause
+    - Save/load
+
+
+File IO:
+    - Save nodes + connections together as txt file and positions as bin file
+
+
+Movement axes:
+- Always absolute
+- Only appear when simulation is paused
+- Depth sorted amongst everything else
+- Drawn as line + cones
+- When clicked and held, expands and becomes brighter
+- Allow movement of selected node[s] strictly along given axis
+- Top and bottom axis can be treated as the same entity
+
+
+---------------------------------------------------------------------
+3/3/2026
+
+I plan to make a flurry of changes to Klotski and MM_SS that will achieve the following things
+    - Will allow the display of SS generation in real-time
+    - Will dramatically reduce actual time to generate the SS itself
+    - Will make configuring new Klotski boards much easier
+
+This will have to be continued later after I complete all other items on my Research Policy
+
+https://claude.ai/chat/d02c5dc4-a5b7-4ad1-8b55-989c3a76b7aa
+
+Klotski changes:
+    - Order blocks deterministically based on position
+    - Two types of string serialization
+        serialize_readable() -> what we have currently
+        serialize() -> memory efficient format
+            - consider uint32_t per block
+        Conversions:
+                board ->serialize_readable
+                serialize_readable -> board
+                board -> serialize()
+                serialize -> board
+    - Board equality does not have to be O(n^2) (n = num blocks)
+    - Remove agency from rects. Try to consolidate more functionality into KlotskiBoard
+    - Modify calculateNewStates to not generate copies of boards directly, rather just returning a list of new strings
+
+MM_SS changes:
+    - Implement generalized ss generation logic into MM_SS itself that is compatible with anything that
+        a. Can be serialized and unserialized into a string
+        b. Has a calculateNewStates function 
+    - Instead of recursion, use BFS (that can be paused)
+    - Store boards directly in nodes, where the titles are the serialized strings, and the body is vestigially null
+    - 
+    - While searching the state space, have an unordered_set of (min(strA, strB), max(strB, strB)) concatenated strings to represent discovered edges
+    
+
+BFS algorithm:
+[...]
+For each node:
+    unserialize into board
+    calculateNewStates
+    for each newState:
+        if it exists in nodes:
+            - add connection (if it doesnt exist yet)
+        otherwise:
+            - add new node
+            - add new connection
+
+---------------------------------------------------------------------
+3/3/26
+
+Generating the classic klotski board state space is taking an absolute eternity to compute
+I can only imagine how difficult it would be to simulate and render it.
+There must be a way to simplify computation or something!
+
+Cool additional features in 2swaps video
+- Generating the state space in real time
+- Random agent exploring the state space
+
+- Camera panning to an agent traversing the game
+- Smooth camera movement and rotation
+
+- Sound effects when building state space
+
+
+
+
+
+
+---------------------------------------------------------------------
+3/2/26
+
+
+I reconuqered Klotski
+
+But I need to resolve lag issues. Two main sources of lag:
+1. Inefficiency of physics
+2. Also something outside of physics (depth-sorting?)
+
+I can also allow for modification of physics constants in real time to make things resolve faster
+
+
+
+Bugs:
+- Duplicate boards present.
+    - A board will have a connection to an identical version of itself
+- Lag: unecessary amount independent of physics 
+Also there were no duplicate boards. Only that we ran out of colors for the final block
+
+Turns out detecting selection of connections is very expensive due to both the number of them and
+perhaps also the process of detection, plus the process of explicitly unselecting them many times redundantly.
+Fix: add a conditional in the updateSelectionOnPoint which does not waste computation on selection connections
+HUGE improvement. 
+
+
+
+
+
+---------------------------------------------------------------------
+
+3/1/26
+
+Lag was caused when label fonts were calculated very far from the screen.
+Returning nullptr for a Label3D if this was the case fixes this.
+
+
+---------------------------------------------------------------------
+2/27/26
+
+New future steps:
+1. Understand and organize structure of code
+2. For some reason things are very laggy (not related to physics). Fix this
+3. Conquer Klotski
+
+
+Currently implementing MM_SS
+
+Yeah so I have mostly finished implemeting it.
+
+Only future changes:
+- Prevent camera actions when in GUI
+    - Actually this is ok. Camera actions just shoulding affect anything when in textbox
+- Allow for rect-style selections
+
+Did that.
+
+
+
+
+
+---------------------------------------------------------------------
+2/25/26
+
+Specs for GMMP:
+- When we select a node, open node editing GUI:
+    - Title and body editor
+    - Delete node option
+- Allow for rectangular selection but only select the closest node
+- No selecting of connections
+- Change body must handle creation/deletion of connections via [[]]
+    - If the title node does not exist, do not add the connection 
+    - But when a new node is added, we must check all other node bodies to see if they refer to The Prophesized Connection
+- Changes to title and body are pushed only when clicking out or escaping the dialogue
+- File-saving 
+    - Save as obisidian-like MD format
+        - One document for each node; connections are from the [[]] thingies
+    - Dialogue:
+        - Corner button option
+        - Text box for file path
+        - Save/load options
+        - "Are you sure" dialogue
+
+Specs for SS_MM:
+- When we select a node, open a custom Game State GUI
+    - Exit button window
+- Custom game state GUI
+    - Basal 'template' window
+    - Then a function that rearranges elements of template given a game state
+
+
+Specs for Open_MM:
+- When we select a node, open node editing GUI:
+    - Title only editing + delete node option
+- Allow for rectangular-based multiple selection
+- When we select a connection, open connection deletion GUI
+- Changes to title are immediate; just do not push if it is invalid
+- File saving:
+    - Dialogue same as GMMP:
+    - Save nodes + connections together as txt file and positions as bin file
+
+
+
+
+---------------------------------------------------------------------
+
+2/24/26 B:
+
+Alright I am fully done with MM_3D
+
+2/24/26 A:
+
+Implemented Graph MM and most of 3D_MM.
+The way the polymorphism worked was a bit tricky but now it seems to be working smoothly.
+One last thing I'll add to 3D_MM is defined methods for selecting nodes/connections
+    - Detecting selected things at a point
+    - Detecting selected things within a 2D rectangular bounds
+
+This implies at least some level of basal depth sorting, namely:
+    - Prefering the closest object in a line of sight rather than a farther one
+        - When selecting inside a rect bounds, distance should not matter
+    - As well as drawing with differing colors
+
+Neat trick for drawing:
+    - Any selected item is guaranteed to be the closer one.
+    - So we can just draw all the unselected items first and draw the selected one in a separate cycle
+
+
+Also: Title labels will need to be rendered even in MM_3D
+
+---------------------------------------------------------------------
+
+Envisioned Hierarchy:
+
+
+GraphMM
+    3D_MM
+        - 3D positions
+        - 3D rendering
+        - Physics
+        - Serializing positions for saving to bin
+
+        GMMP
+            - Title and body 
+            - Connections emerge as function of body
+            - Obsidian-style MD saving w/ positions
+        SS_MM
+            - cannot edit with GUI; 'read' only
+            - No saving
+        Open_MM
+            - Free to add node and connections explicitly
+            - No body; only title
+            - Save nodes + connections together as txt file and positions as bin file
+
+    2D_MM
+        - Physics
+        - 2D rendering
+
+
+---------------------------------------------------------------------
+
+Great Overhaul:
+
+1. Collection class will be removed. 
+    - Depth "sorting" will be done manually and in a much more efficient manner
+    - This removes the need for specific integer 'IDs'
+
+2. Physical_mm class would subclass mm class
+    - Each 'node' would also be subclassed
+    - Therefore containers would be a pointer (unique_ptr) to node objects
+    - We will also need objects for connections
+    
+
+- Saving will be compatible with Obsidian markdown format
+
+
+1. Remove Collection class
+2. Remove MM class and consolidate it into Physical_MM
+    - Use only string indices to represent cells
+    - Manually depth sort by simply finding the highlighted nodes (if any)
+3. Rehaul the GUI system
+
+
+
+---------------------------------------------------------------------
+
+List of bugs:
+- "Freezing" with P
+    - Crashing when adding a name that already exists
+- Still being in a text box when closing out
+- Space selecting add new node
+- Registering camera movements when in an external window typing
+- UI line going away when deleting node
+- Camera somehow inverted once
+- Physics going crazy when two nodes go into each other; or even worse, a floating point error
+- accidently clicking objects when in UI
+- filesaving not working
+- when u click on a node, and your mouse is already on a button, you will automatically select the button
+- if you try to delete a node, but then the delete button corresponds with a connection, it crashes(i think)
+
+
+Future features:
+- Allow selection of multiple nodes
+- Don't allow selection of edges when adding new connection
+- Create new node when adding connection to empty thing
+- Allow for shortcuts such as delete key
+- Show x-y-z orientation cube
+- make a cancel UI selection feature
+- When spawning multiple nodes, add one randomly nearby if one is already at the position
+- 3d_camera-general: when exiting out of window, automatically unlock mouse
+- Massive improvement to depth-sorting: only sort if an object is selected, and even then, just sort that coloured object and nothing else
+
+
+
+
+
+
+
+
+
+
