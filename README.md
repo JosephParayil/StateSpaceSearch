@@ -49,3 +49,11 @@ About a year ago, this served as inspiration to develop the C++ 3D rendering eng
 This project's choice of the Klotski puzzle was also directly inspired from his demonstrating of the interesting structures that emerge from the state spaces of this puzzle.
 
 This project builds upon several underlying personal libraries (including the 3D wireframe engine) built ~10 months beforehand, <ins>treated as dependencies</ins>. These were not vibecoded but rather represent mostly original human work driven out of interest and a desire to improve programming skills. 
+
+
+
+## Future Directions
+- Optimize the state-space search process (currently crashes with large state-spaces)
+- Implement other puzzles such as pancake sorting or 15-puzzle
+- Let the nodes be gradually added into the simulation as they are generated in realtime
+- Implement depth-sorting; optimize n-body physics; run matrix operations on GPU
