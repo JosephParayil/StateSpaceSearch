@@ -14,7 +14,8 @@
 #include "sfml-3d/math4.hpp"
 #include "state-spaces/ss.hpp"
 #include "state-spaces/klotski.hpp"
-#include "state-spaces/ss.hpp"
+#include "state-spaces/klotski_boards.hpp"
+
 
 #include "GMMP/GraphMM.hpp"
 #include "GMMP/MM_3D.hpp"
@@ -22,6 +23,9 @@
 
 #include "StateSpaceGrapher/graph_support.hpp"
 
+#include "core/graph.hpp"
+#include "core/Astar.hpp"
+#include "core/bfs.hpp"
 
 
 tgui::ChildWindow::Ptr createTemplateWindow(tgui::Gui& gui,
@@ -114,19 +118,24 @@ int main() {
     Camera camera(window, 60.0f, 0.001f, 2.f, 10.f, 0.5f); 
         
 
-    // ------- KLOTSKI INITIAL BOARD ------- //
+    // ------- CHOOSING KLOTSKI INITIAL BOARD ------- //
 
-KlotskiBoard klotski_board(7,7);
+    auto [boards, board_representations] = create_board_list();
 
-KlotskiRect rect0(3,0,1,2, KlotskiRect::MovementMode::Vertical);
-klotski_board.addRect(rect0);
-KlotskiRect rect1(0,3,2,1, KlotskiRect::MovementMode::Horizontal);
-klotski_board.addRect(rect1);
-KlotskiRect rect2(5,4,2,1, KlotskiRect::MovementMode::Horizontal);
-klotski_board.addRect(rect2);
+    for (int i = 0; i < board_representations.size(); i++) {
+        std::cout << "---------------------------------------\n";
+        std::cout << "BOARD # " << i << ":" << std::endl;
+        std::cout << board_representations[i];
+    }
+
+    std::cout << "CHOOSE YOUR BOARD (enter index of board to test)\n";
+    int board_id;
+    std::cin >> board_id;
+
+    KlotskiBoard klotski_board = boards[board_id];
 
 
-// ------- TGUI WINDOW ------- //
+    // ------- TGUI WINDOW ------- //
 
     tgui::Gui gui(window);
     auto templateWindow = createTemplateWindow(gui, WIDTH, HEIGHT, klotski_board.width, klotski_board.height);
@@ -135,23 +144,33 @@ klotski_board.addRect(rect2);
     // ------- GENERATING STATE SPACE ------- //
     std::vector<std::string> states;
     StateSpace klotski_ss = generate_klotski_ss(klotski_board, states);
+    std::cout << "Num_nodes: " << klotski_ss.NUM_NODES << std::endl;
     std::cout << "Num_edges: " << klotski_ss.edges.size() << std::endl;
-    
-    std::vector<int> print_states = {0, 174};
-    for (int i = 0; i < states.size(); i++) {
-        for (int j : print_states) {
-            if (i==j) {
-                std::cout << states[i] << std::endl;
-                break;
-            }
-        }
-    }
 
-    // ------- PERFORMING GRAPH SEARCH ------- //
+   int start_index = 0;
+    int end_index = klotski_ss.NUM_NODES/2;
+    std::cout << "Computing shortest path from\n";
+    std::cout << states[start_index] << std::endl;
+    std::cout << "to\n";
+    std::cout << states[end_index] << std::endl;
+
+
+        // ------- PERFORMING GRAPH SEARCH ------- //
     Graph klotski_graph = ss_to_graph(klotski_ss);
-    std::vector<int> optimal_path = dijkstra_shortest_path(klotski_graph, 0, 174);
-    std::cout << "Length of optimal path: " << optimal_path.size() << std::endl;
+    int bfs_count = 0;
+    int astar_count = 0;
+    std::vector<int> bfs_path = bfs(klotski_graph, start_index, end_index, &bfs_count);
+    std::vector<int> astar_path = a_star(klotski_graph, start_index, end_index, [](int, int) { return 0; }, &astar_count);
     
+    std::vector<int>& optimal_path = bfs_path;
+
+    std::cout << "Length of bfs path: " << optimal_path.size() << std::endl;
+    std::cout << "Length of a* path: " << optimal_path.size() << std::endl;
+    std::cout << std::endl;
+    std::cout << "Number of nodes checked for BFS: " << bfs_count << std::endl;
+    std::cout << "Number of nodes checked for A*: " << astar_count << std::endl;
+    std::cout << std::endl;
+
 
 
     // ------- CREATING 3D REPRESNTATION ------- //

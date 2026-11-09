@@ -116,16 +116,14 @@ int main() {
 
     // ------- KLOTSKI INITIAL BOARD ------- //
 
-KlotskiBoard klotski_board(4,4);
+KlotskiBoard klotski_board(7,7);
 
-klotski_board.addRect(KlotskiRect(0,0,2,1, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(3,0,1,1, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(3,1,1,1, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(3,2,1,1, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(1,3,2,1, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(0,3,1,1, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(0,1,1,2, KlotskiRect::MovementMode::Both));
-klotski_board.addRect(KlotskiRect(1,1,2,2, KlotskiRect::MovementMode::Both));
+KlotskiRect rect0(3,0,1,2, KlotskiRect::MovementMode::Vertical);
+klotski_board.addRect(rect0);
+KlotskiRect rect1(0,3,2,1, KlotskiRect::MovementMode::Horizontal);
+klotski_board.addRect(rect1);
+KlotskiRect rect2(5,4,2,1, KlotskiRect::MovementMode::Horizontal);
+klotski_board.addRect(rect2);
 
 
 // ------- TGUI WINDOW ------- //
