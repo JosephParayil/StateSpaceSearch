@@ -32,8 +32,8 @@ tgui::ChildWindow::Ptr createTemplateWindow(tgui::Gui& gui,
                                             int sfmlWidth, int sfmlHeight,
                                             int ROWS, int COLUMNS,
                                             tgui::Color windowColor = tgui::Color(60, 60, 60)) {
-    // Largest square cell size (in pixels) that satisfies all three limits.
-    // Cells are square, so the window's aspect ratio is COLUMNS:ROWS.
+    // Area cannot exceed 1/5th the area of the SFML 
+    // Aspect ratio fits the number of board rows + columns
     const float maxArea = sfmlWidth * sfmlHeight / 5.f;
     int cell = static_cast<int>(std::floor(std::min({
         static_cast<float>(sfmlWidth)  / COLUMNS,
@@ -44,8 +44,6 @@ tgui::ChildWindow::Ptr createTemplateWindow(tgui::Gui& gui,
     auto win = tgui::ChildWindow::create("Template");
     win->getRenderer()->setBackgroundColor(windowColor);
 
-    // The title bar and borders add to the total size, so shrink the cells
-    // until the full window (getSize) respects the limits too.
     for (; cell > 0; --cell)
     {
         win->setClientSize({static_cast<float>(COLUMNS * cell),
@@ -58,7 +56,8 @@ tgui::ChildWindow::Ptr createTemplateWindow(tgui::Gui& gui,
     win->setPosition({"(&.width - width) / 2", "(&.height - height) / 2"}); // centered
     gui.add(win, "template");
 
-    // Cells: named "r-c", r in [0, ROWS), c in [0, COLUMNS)
+    // Cell name formatting is "r-c"
+    // r in [0, ROWS); c in [0, COLUMNS)
     for (int r = 0; r < ROWS; ++r)
     {
         for (int c = 0; c < COLUMNS; ++c)
